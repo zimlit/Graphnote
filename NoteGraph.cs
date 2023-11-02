@@ -1,14 +1,41 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+
+class AddNodeCommand : Command
+{
+	readonly string nodeName;
+	readonly Graph graph;
+	int id;
+
+	public AddNodeCommand(Graph graph, string nodeName)
+	{
+		this.graph = graph;
+		this.nodeName = nodeName;
+	}
+
+	public override void Execute()
+	{
+		id = graph.AddNode(nodeName).VertexId;
+	}
+
+	public override void Undo()
+	{
+		graph.RemoveNode(id);
+	}
+}
 
 public partial class NoteGraph : Control
 {
-	public Graph graph 
-		{ get; } 
+	public Graph graph
+	{ get; }
 		= new Graph();
-		
+
 	Popup popup;
 	LineEdit nodeName;
+
+	List<Command> commands = new List<Command>();
+	int commandPos = -1;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -32,9 +59,13 @@ public partial class NoteGraph : Control
 		popup.PopupCentered();
 	}
 
-	private void OnPopupDone() {
+	private void OnPopupDone()
+	{
 		popup.Hide();
-		graph.AddNode(nodeName.Text == "" ? "Node " + graph.VertexCount : nodeName.Text);
+		var command = new AddNodeCommand(graph, nodeName.Text);
+		command.Execute();
+		commands.Add(command);
+		commandPos++;
 		nodeName.Text = "";
 	}
 }
