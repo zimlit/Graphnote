@@ -63,8 +63,7 @@ public partial class GraphView : Control
 
 		if (dragging != -1)
 		{
-			var mousePos = GetGlobalMousePosition();
-			mousePos.Y -= 48;
+			var mousePos = GetLocalMousePosition();
 			var nodePos = new Vector2(
 				(float)(radius * Math.Cos(step * dragging) + size.X / 2),
 				(float)(radius * Math.Sin(step * dragging) + size.Y / 2)
@@ -114,8 +113,7 @@ public partial class GraphView : Control
 	{
 		if (Input.IsActionPressed("click"))
 		{
-			var mousePos = GetGlobalMousePosition();
-			mousePos.Y -= 48;
+			var mousePos = GetLocalMousePosition();
 			foreach (var node in graph.vertexSet)
 			{
 				var nodePos = new Vector2(
@@ -150,7 +148,7 @@ public partial class GraphView : Control
 						(float)(radius * Math.Sin(step * adjacent) + size.Y / 2)
 					);
 
-					if (Math.Abs((endPos - nodePos).Cross(mousePos - nodePos)) > 600)
+					if (Math.Abs((endPos - nodePos).Cross(mousePos - nodePos)) > 1000)
 						continue;
 
 					var dotproduct = (endPos - nodePos).Dot(mousePos - nodePos);
@@ -210,7 +208,12 @@ public partial class GraphView : Control
 			{
 				graph.RemoveNode(node);
 			}
+			foreach (var edge in selectedEdges)
+			{
+				graph.RemoveEdge(edge.Item1, edge.Item2);
+			}
 			selected.Clear();
+			selectedEdges.Clear();
 			QueueRedraw();
 		}
 	}
