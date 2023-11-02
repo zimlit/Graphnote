@@ -3,7 +3,6 @@ using System;
 
 public partial class NoteGraph : Control
 {
-	int nodeCount = 0;
 	public Graph graph 
 		{ get; } 
 		= new Graph();
@@ -21,11 +20,6 @@ public partial class NoteGraph : Control
 		popupDone.Pressed += OnPopupDone;
 
 		button.Pressed += OnTextureButtonPressed;
-		graph.AddNode("Node 1");
-		graph.AddNode("Node 2");
-		graph.AddNode("Node 3");
-		graph.AddEdge(0, 1);
-		graph.AddEdge(0, 2);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -40,7 +34,7 @@ public partial class NoteGraph : Control
 
 	private void OnPopupDone() {
 		popup.Hide();
-		graph.AddNode(nodeName.Text);
-		nodeCount++;
+		graph.AddNode(nodeName.Text == "" ? "Node " + graph.VertexCount : nodeName.Text);
+		nodeName.Text = "";
 	}
 }

@@ -27,10 +27,6 @@ tooltip_text = "Add a new node"
 texture_normal = ExtResource("2_h0jbq")
 texture_hover = ExtResource("3_o2u4u")
 
-[node name="Button" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-text = "make connection"
-
 [node name="Popup" type="Popup" parent="."]
 size = Vector2i(200, 100)
 
@@ -51,7 +47,7 @@ grow_horizontal = 2
 
 [node name="LineEdit" type="LineEdit" parent="Popup/ColorRect/VBoxContainer"]
 layout_mode = 2
-text = "Note Name"
+placeholder_text = "Note Name"
 
 [node name="Button" type="Button" parent="Popup/ColorRect/VBoxContainer"]
 layout_mode = 2

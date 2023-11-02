@@ -8,7 +8,10 @@ public partial class GraphView : Control
 {
 	private Graph graph;
 	private Vector2 size;
+	
+	// Editor stuff
 	public readonly List<int> selected = new List<int>();
+	int dragging = -1;
 
 	readonly Color nodeColor = new Color(0.1f, 0.2f, 0.5f);
 	readonly Color selectedNodeColor = new Color(0.3f, 0.5f, 0.7f);
@@ -27,20 +30,7 @@ public partial class GraphView : Control
 		graph = noteGraph.graph;
 		size = GetViewportRect().Size;
 		noteGraph.Resized += OnResize;
-		var connectionButton = GetNode<Button>("../HBoxContainer/Button");
-		connectionButton.Pressed += OnConnectionButtonPressed;
 	}
-
-    private void OnConnectionButtonPressed()
-    {
-        if (selected.Count != 2) {
-			GetNode<AcceptDialog>("AcceptDialog").PopupCentered();
-			return;
-		}
-
-		graph.AddEdge(selected[0], selected[1]);
-		QueueRedraw();
-    }
 
     private void OnPopupDone()
 	{
@@ -56,6 +46,9 @@ public partial class GraphView : Control
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		if (dragging != -1) {
+			QueueRedraw();
+		}
 	}
 
 	public override void _Draw()
@@ -65,6 +58,16 @@ public partial class GraphView : Control
 		step = Math.Tau / graph.VertexCount;
 		while (Math.Tau * radius / 3 < graph.VertexCount * 20)
 			radius *= 2;
+
+		if (dragging != -1) {
+			var mousePos = GetGlobalMousePosition();
+			mousePos.Y -= 48;
+			var nodePos = new Vector2(
+				(float)(radius * Math.Cos(step * dragging) + size.X / 2), 
+				(float)(radius * Math.Sin(step * dragging) + size.Y / 2)
+			);
+			DrawLine(nodePos, mousePos, Colors.White, antialiased: true);
+		}
 		
 		foreach (var node in graph.vertexSet)
 		{
@@ -73,6 +76,7 @@ public partial class GraphView : Control
 				(float)(radius * Math.Sin(step * node.VertexId) + size.Y / 2)
 			);
 			nodesToDraw.Add(nodePos);
+
 
 			GD.Print(node.Name + " " + nodePos);
 			foreach (var edge in node.AdjacencySet) {
@@ -97,9 +101,7 @@ public partial class GraphView : Control
 
     public override void _Input(InputEvent @event)
     {
-		if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed) {
-			if (mouseEvent.ButtonIndex != MouseButton.Left)
-				return;
+		if (Input.IsActionPressed("click")) {
 			var mousePos = GetGlobalMousePosition();
 			mousePos.Y -= 48;
 			foreach (var node in graph.vertexSet)
@@ -109,24 +111,38 @@ public partial class GraphView : Control
 					(float)(radius * Math.Sin(step * node.VertexId) + size.Y / 2)
 				);
 				if (nodePos.DistanceTo(mousePos) < nodeRadius) {
+					if (dragging == -1)
+						dragging = node.VertexId;
 					if (Input.IsKeyPressed(Key.Shift))
 						if (selected.Contains(node.VertexId))
 							selected.Remove(node.VertexId);
 						else
 							selected.Add(node.VertexId);
 					else {
-						if (selected.Contains(node.VertexId))
-							selected.Remove(node.VertexId);
-						else
-						{
-							selected.Clear();
-							selected.Add(node.VertexId);
-						}
+						selected.Clear();
+						selected.Add(node.VertexId);
 					}
 					QueueRedraw();
 					break;
 				}
 			}
+		}
+		if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)  {
+			var mousePos = GetGlobalMousePosition();
+			mousePos.Y -= 48;
+			
+			foreach (var node in graph.vertexSet)
+			{
+				var nodePos = new Vector2(
+					(float)(radius * Math.Cos(step * node.VertexId) + size.X / 2), 
+					(float)(radius * Math.Sin(step * node.VertexId) + size.Y / 2)
+				);
+				if (nodePos.DistanceTo(mousePos) < nodeRadius) {
+					graph.AddEdge(dragging, node.VertexId);
+				}
+			}
+			dragging = -1;
+			QueueRedraw();
 		}
     }
 }
