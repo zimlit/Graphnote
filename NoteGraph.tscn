@@ -61,15 +61,3 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_yclmv")
-
-[node name="AcceptDialog" type="AcceptDialog" parent="GraphView"]
-size = Vector2i(254, 109)
-
-[node name="Label" type="Label" parent="GraphView/AcceptDialog"]
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 246.0
-offset_bottom = 60.0
-text = "Creating a connection requires 
-2 selected nodes"
-horizontal_alignment = 1
