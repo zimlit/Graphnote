@@ -1,0 +1,79 @@
+[gd_scene load_steps=5 format=3 uid="uid://qfpeibypxyft"]
+
+[ext_resource type="Script" path="res://NoteGraph.cs" id="1_ntdiv"]
+[ext_resource type="Texture2D" uid="uid://fmkg4ed38ev0" path="res://assets/icons/plus.svg" id="2_h0jbq"]
+[ext_resource type="Texture2D" uid="uid://c4kqknfbgglpo" path="res://assets/icons/plus_hover.svg" id="3_o2u4u"]
+[ext_resource type="Script" path="res://GraphView.cs" id="4_yclmv"]
+
+[node name="NoteGraph" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ntdiv")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 48.0
+grow_horizontal = 2
+
+[node name="TextureButton" type="TextureButton" parent="HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Add a new node"
+texture_normal = ExtResource("2_h0jbq")
+texture_hover = ExtResource("3_o2u4u")
+
+[node name="Button" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "make connection"
+
+[node name="Popup" type="Popup" parent="."]
+size = Vector2i(200, 100)
+
+[node name="ColorRect" type="ColorRect" parent="Popup"]
+offset_right = 200.0
+offset_bottom = 100.0
+color = Color(0.0823529, 0.0823529, 0.196078, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Popup/ColorRect"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.1
+offset_bottom = 43.0
+grow_horizontal = 2
+
+[node name="LineEdit" type="LineEdit" parent="Popup/ColorRect/VBoxContainer"]
+layout_mode = 2
+text = "Note Name"
+
+[node name="Button" type="Button" parent="Popup/ColorRect/VBoxContainer"]
+layout_mode = 2
+text = "Done"
+
+[node name="GraphView" type="Control" parent="."]
+layout_mode = 1
+anchor_top = 0.05
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_yclmv")
+
+[node name="AcceptDialog" type="AcceptDialog" parent="GraphView"]
+size = Vector2i(254, 109)
+
+[node name="Label" type="Label" parent="GraphView/AcceptDialog"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 246.0
+offset_bottom = 60.0
+text = "Creating a connection requires 
+2 selected nodes"
+horizontal_alignment = 1
