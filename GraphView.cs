@@ -22,20 +22,16 @@ public partial class GraphView : Control
 	double step;
 	float nodeRadius = 10;
 
+	[Signal]
+	public delegate void EdgeAddedEventHandler(int id1, int id2);
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		var popupDone = GetNode<Button>("../Popup/ColorRect/VBoxContainer/Button");
-		popupDone.Pressed += OnPopupDone;
 		var noteGraph = GetParent<NoteGraph>();
 		graph = noteGraph.graph;
 		size = GetViewportRect().Size;
 		noteGraph.Resized += OnResize;
-	}
-
-	private void OnPopupDone()
-	{
-		QueueRedraw();
 	}
 
 	private void OnResize()
@@ -195,11 +191,11 @@ public partial class GraphView : Control
 				);
 				if (nodePos.DistanceTo(mousePos) < nodeRadius)
 				{
-					graph.AddEdge(dragging, node.VertexId);
+					EmitSignal(SignalName.EdgeAdded, dragging, node.VertexId);
 				}
 			}
-			dragging = -1;
 			QueueRedraw();
+			dragging = -1;
 		}
 		if (Input.IsActionJustPressed("delete"))
 		{

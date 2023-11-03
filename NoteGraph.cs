@@ -25,6 +25,30 @@ class AddNodeCommand : Command
 	}
 }
 
+class AddEdgeCommand : Command
+{
+	readonly Graph graph;
+	readonly int id1;
+	readonly int id2;
+
+	public AddEdgeCommand(Graph graph, int id1, int id2)
+	{
+		this.graph = graph;
+		this.id1 = id1;
+		this.id2 = id2;
+	}
+
+	public override void Execute()
+	{
+		graph.AddEdge(id1, id2);
+	}
+
+	public override void Undo()
+	{
+		graph.RemoveEdge(id1, id2);
+	}
+}
+
 public partial class NoteGraph : Control
 {
 	public Graph graph
@@ -33,6 +57,7 @@ public partial class NoteGraph : Control
 
 	Popup popup;
 	LineEdit nodeName;
+	GraphView graphView;
 
 	List<Command> commands = new List<Command>();
 	int commandPos = -1;
@@ -45,6 +70,8 @@ public partial class NoteGraph : Control
 		nodeName = GetNode<LineEdit>("Popup/ColorRect/VBoxContainer/LineEdit");
 		var popupDone = GetNode<Button>("Popup/ColorRect/VBoxContainer/Button");
 		popupDone.Pressed += OnPopupDone;
+		graphView = GetNode<GraphView>("GraphView");
+		graphView.EdgeAdded += OnEdgeAdded;
 
 		button.Pressed += OnTextureButtonPressed;
 	}
@@ -67,5 +94,15 @@ public partial class NoteGraph : Control
 		commands.Add(command);
 		commandPos++;
 		nodeName.Text = "";
+		graphView.QueueRedraw();
+	}
+
+	private void OnEdgeAdded(int id1, int id2)
+	{
+		var command = new AddEdgeCommand(graph, id1, id2);
+		command.Execute();
+		commands.Add(command);
+		commandPos++;
+		graphView.QueueRedraw();
 	}
 }
