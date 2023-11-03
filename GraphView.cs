@@ -183,8 +183,7 @@ public partial class GraphView : Control
 		}
 		if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
 		{
-			var mousePos = GetGlobalMousePosition();
-			mousePos.Y -= 48;
+			var mousePos = GetLocalMousePosition();
 
 			foreach (var node in graph.vertexSet)
 			{
