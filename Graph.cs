@@ -34,7 +34,7 @@ public class Graph
 {
 	public HashSet<Node> vertexSet { get; } = new HashSet<Node>();
 	private int idCounter = 0;
-	private Queue<int> deadIdQueue = new Queue<int>();
+	private Stack<int> deadIdQueue = new Stack<int>();
 
 	public int VertexCount
 	{ get { return vertexSet.Count; } }
@@ -42,7 +42,7 @@ public class Graph
 	public Node AddNode(string nodeName)
 	{
 		int id;
-		bool isRe = deadIdQueue.TryDequeue(out id);
+		bool isRe = deadIdQueue.TryPop(out id);
 		if (!isRe) id = idCounter;
 		Node node = new Node(id, nodeName);
 		vertexSet.Add(node);
@@ -59,7 +59,7 @@ public class Graph
 		{
 			node.AdjacencySet.RemoveWhere(n => n == id);
 		}
-		deadIdQueue.Enqueue(id);
+		deadIdQueue.Push(id);
 	}
 
 	public void AddEdge(int v1, int v2)

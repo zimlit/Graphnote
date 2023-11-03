@@ -105,12 +105,12 @@ public partial class NoteGraph : Control
 
 	public override void _Input(InputEvent @event)
 	{
-		if (Input.IsActionPressed("redo"))
+		if (Input.IsActionJustPressed("redo"))
 		{
 			commands.Redo();
 			graphView.QueueRedraw();
 		}
-		else if (Input.IsActionPressed("undo"))
+		else if (Input.IsActionJustPressed("undo"))
 		{
 			commands.Undo();
 			graphView.QueueRedraw();
