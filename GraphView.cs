@@ -67,11 +67,14 @@ public partial class GraphView : Control
 			DrawLine(nodePos, mousePos, Colors.White, antialiased: true);
 		}
 
+		int i = -1;
 		foreach (var node in graph.vertexSet)
 		{
+			i++;
+
 			var nodePos = new Vector2(
-				(float)(radius * Math.Cos(step * node.VertexId) + size.X / 2),
-				(float)(radius * Math.Sin(step * node.VertexId) + size.Y / 2)
+				(float)(radius * Math.Cos(step * i) + size.X / 2),
+				(float)(radius * Math.Sin(step * i) + size.Y / 2)
 			);
 			nodesToDraw.Add(nodePos);
 

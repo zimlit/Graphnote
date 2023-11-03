@@ -34,25 +34,32 @@ public class Graph
 {
 	public HashSet<Node> vertexSet { get; } = new HashSet<Node>();
 	private int idCounter = 0;
+	private Queue<int> deadIdQueue = new Queue<int>();
 
 	public int VertexCount
 	{ get { return vertexSet.Count; } }
 
 	public Node AddNode(string nodeName)
 	{
-		Node node = new Node(idCounter, nodeName);
+		int id;
+		bool isRe = deadIdQueue.TryDequeue(out id);
+		if (!isRe) id = idCounter;
+		Node node = new Node(id, nodeName);
 		vertexSet.Add(node);
-		idCounter++;
+		if (!isRe) idCounter++;
 		return node;
 	}
 
 	public void RemoveNode(int id)
 	{
+		if (!vertexSet.Any(n => n.VertexId == id))
+			throw new ArgumentOutOfRangeException("Vertex is out of bounds");
 		vertexSet.RemoveWhere(n => n.VertexId == id);
 		foreach (var node in vertexSet)
 		{
 			node.AdjacencySet.RemoveWhere(n => n == id);
 		}
+		deadIdQueue.Enqueue(id);
 	}
 
 	public void AddEdge(int v1, int v2)

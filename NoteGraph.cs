@@ -59,8 +59,7 @@ public partial class NoteGraph : Control
 	LineEdit nodeName;
 	GraphView graphView;
 
-	List<Command> commands = new List<Command>();
-	int commandPos = -1;
+	CommandList commands = new CommandList();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -91,8 +90,7 @@ public partial class NoteGraph : Control
 		popup.Hide();
 		var command = new AddNodeCommand(graph, nodeName.Text);
 		command.Execute();
-		commands.Add(command);
-		commandPos++;
+		commands.AddCommand(command);
 		nodeName.Text = "";
 		graphView.QueueRedraw();
 	}
@@ -101,8 +99,21 @@ public partial class NoteGraph : Control
 	{
 		var command = new AddEdgeCommand(graph, id1, id2);
 		command.Execute();
-		commands.Add(command);
-		commandPos++;
+		commands.AddCommand(command);
 		graphView.QueueRedraw();
+	}
+
+	public override void _Input(InputEvent @event)
+	{
+		if (Input.IsActionPressed("redo"))
+		{
+			commands.Redo();
+			graphView.QueueRedraw();
+		}
+		else if (Input.IsActionPressed("undo"))
+		{
+			commands.Undo();
+			graphView.QueueRedraw();
+		}
 	}
 }
