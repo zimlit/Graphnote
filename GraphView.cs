@@ -14,8 +14,8 @@ public partial class GraphView : Control
 	public readonly HashSet<(int, int)> selectedEdges = new HashSet<(int, int)>();
 	int dragging = -1;
 
-	readonly Color nodeColor = new Color(0.1f, 0.2f, 0.5f);
-	readonly Color selectedColor = new Color(0.3f, 0.5f, 0.7f);
+	readonly Color nodeColor = new Color(0.1f, 0.5f, 0.2f);
+	readonly Color selectedColor = new Color(0.5f, 0.2f, 0.1f);
 
 	// drawing stuff
 	double radius = 100;
@@ -24,6 +24,9 @@ public partial class GraphView : Control
 
 	[Signal]
 	public delegate void EdgeAddedEventHandler(int id1, int id2);
+
+	[Signal]
+	public delegate void NodeOpenedEventHandler(int id);
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -102,7 +105,7 @@ public partial class GraphView : Control
 		{
 			if (selected.Contains(nodesToDraw.IndexOf(node)))
 			{
-				DrawArc(node, nodeRadius + 1, 0, 360, 100, selectedColor);
+				DrawArc(node, nodeRadius + 1, 0, 360, 100, selectedColor, 1);
 			}
 			DrawCircle(node, nodeRadius, nodeColor);
 		}
@@ -179,6 +182,15 @@ public partial class GraphView : Control
 					break;
 				}
 			}
+
+			if (@event is InputEventMouseButton buttonEvent && buttonEvent.DoubleClick)
+			{
+				try
+				{
+					EmitSignal(SignalName.NodeOpened, selected.Last());
+				}
+				catch (Exception) { }
+			}
 		}
 		if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
 		{
@@ -199,6 +211,7 @@ public partial class GraphView : Control
 			}
 			QueueRedraw();
 			dragging = -1;
+
 		}
 		if (Input.IsActionJustPressed("delete"))
 		{

@@ -71,8 +71,14 @@ public partial class NoteGraph : Control
 		popupDone.Pressed += OnPopupDone;
 		graphView = GetNode<GraphView>("GraphView");
 		graphView.EdgeAdded += OnEdgeAdded;
+		graphView.NodeOpened += OnNodeOpened;
 
 		button.Pressed += OnTextureButtonPressed;
+	}
+
+	private void OnNodeOpened(int id)
+	{
+		GD.Print("Node opened: " + id);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
