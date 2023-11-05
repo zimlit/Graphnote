@@ -10,6 +10,9 @@ public class Node
 	public string Name
 	{ get; set; }
 
+	public string Markup
+	{ get; set; }
+
 	public Node(int vertexId, string name = "")
 	{
 		this.VertexId = vertexId;

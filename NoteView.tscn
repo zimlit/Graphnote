@@ -1,4 +1,48 @@
-[gd_scene format=3 uid="uid://dwjegiwkc54m8"]
+[gd_scene load_steps=7 format=3 uid="uid://dwjegiwkc54m8"]
+
+[ext_resource type="Script" path="res://NoteView.cs" id="1_72glg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h401v"]
+bg_color = Color(0.00392157, 0.0392157, 0.101961, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jlwo5"]
+bg_color = Color(0.00392157, 0.0392157, 0.101961, 1)
+
+[sub_resource type="Animation" id="Animation_4p76i"]
+resource_name = "Close"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 1080)]
+}
+
+[sub_resource type="Animation" id="Animation_hx1dd"]
+resource_name = "Open"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(2, 2),
+"update": 0,
+"values": [Vector2(0, 1080), Vector2(0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_3fm7q"]
+_data = {
+"Close": SubResource("Animation_4p76i"),
+"Open": SubResource("Animation_hx1dd")
+}
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -7,20 +51,29 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_72glg")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = -0.000976562
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="TextEdit" type="TextEdit" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_h401v")
 
 [node name="Label" type="Label" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
+theme_override_styles/normal = SubResource("StyleBoxFlat_jlwo5")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_3fm7q")
+}

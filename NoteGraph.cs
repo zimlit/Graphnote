@@ -60,6 +60,7 @@ public partial class NoteGraph : Control
 	GraphView graphView;
 
 	CommandList commands = new CommandList();
+	PackedScene noteView;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -74,11 +75,25 @@ public partial class NoteGraph : Control
 		graphView.NodeOpened += OnNodeOpened;
 
 		button.Pressed += OnTextureButtonPressed;
+
+		noteView = GD.Load<PackedScene>("res://noteView.tscn");
 	}
 
-	private void OnNodeOpened(int id)
+	private async void OnNodeOpened(int id)
 	{
-		GD.Print("Node opened: " + id);
+		NoteView view = noteView.Instantiate<NoteView>();
+		view.NoteId = id;
+		view.NoteClosed += OnNoteClosed;
+		AddChild(view);
+		await ToSignal(GetNode("noteView/AnimationPlayer"), "animation_finished");
+		graphView.Hide();
+		GetNode<HBoxContainer>("HBoxContainer").Hide();
+	}
+
+	private void OnNoteClosed()
+	{
+		graphView.Show();
+		GetNode<HBoxContainer>("HBoxContainer").Show();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -109,7 +124,7 @@ public partial class NoteGraph : Control
 		graphView.QueueRedraw();
 	}
 
-	public override void _Input(InputEvent @event)
+	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (Input.IsActionJustPressed("redo"))
 		{
