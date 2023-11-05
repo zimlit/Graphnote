@@ -8,6 +8,7 @@ public partial class NoteView : Control
 	NoteGraph parent;
 	TextEdit editor;
 	Label output;
+	public AnimationPlayer Animation;
 
 	[Signal]
 	public delegate void NoteClosedEventHandler();
@@ -22,8 +23,8 @@ public partial class NoteView : Control
 		output = GetNode<Label>("HBoxContainer/Label");
 		output.Text = editor.Text;
 
-		var animation = GetNode<AnimationPlayer>("AnimationPlayer");
-		animation.Play("Open");
+		Animation = GetNode<AnimationPlayer>("AnimationPlayer");
+		Animation.Play("Open");
 	}
 
 	private void OnTextChanged()
@@ -41,10 +42,9 @@ public partial class NoteView : Control
 	{
 		if (Input.IsActionPressed("exit"))
 		{
-			var animation = GetNode<AnimationPlayer>("AnimationPlayer");
-			animation.Play("Close");
+			Animation.Play("Close");
 			EmitSignal(SignalName.NoteClosed);
-			await ToSignal(animation, "animation_finished");
+			await ToSignal(Animation, "animation_finished");
 			QueueFree();
 		}
 	}

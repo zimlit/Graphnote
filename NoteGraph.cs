@@ -85,7 +85,7 @@ public partial class NoteGraph : Control
 		view.NoteId = id;
 		view.NoteClosed += OnNoteClosed;
 		AddChild(view);
-		await ToSignal(GetNode("noteView/AnimationPlayer"), "animation_finished");
+		await ToSignal(view.Animation, "animation_finished");
 		graphView.Hide();
 		GetNode<HBoxContainer>("HBoxContainer").Hide();
 	}
