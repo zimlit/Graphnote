@@ -1,19 +1,15 @@
-[gd_scene load_steps=7 format=3 uid="uid://dwjegiwkc54m8"]
+[gd_scene load_steps=8 format=3 uid="uid://dwjegiwkc54m8"]
 
 [ext_resource type="Script" path="res://NoteView.cs" id="1_72glg"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h401v"]
-bg_color = Color(0.00392157, 0.0392157, 0.101961, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jlwo5"]
-bg_color = Color(0.00392157, 0.0392157, 0.101961, 1)
+[ext_resource type="Texture2D" uid="uid://b46vhj55bahpb" path="res://assets/icons/x.svg" id="2_h7mvm"]
+[ext_resource type="Texture2D" uid="uid://4qfiil0vw1fk" path="res://assets/icons/x-hover.svg" id="3_sylyy"]
 
 [sub_resource type="Animation" id="Animation_4p76i"]
 resource_name = "Close"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("HBoxContainer:position")
+tracks/0/path = NodePath("VBoxContainer:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -28,7 +24,7 @@ resource_name = "Open"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("HBoxContainer:position")
+tracks/0/path = NodePath("VBoxContainer:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -44,6 +40,9 @@ _data = {
 "Open": SubResource("Animation_hx1dd")
 }
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nes0g"]
+bg_color = Color(0.00784314, 0.0784314, 0.2, 1)
+
 [node name="Control" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -53,27 +52,48 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_72glg")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -0.000976562
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextEdit" type="TextEdit" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_h401v")
-
-[node name="Label" type="Label" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-theme_override_styles/normal = SubResource("StyleBoxFlat_jlwo5")
-
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 "": SubResource("AnimationLibrary_3fm7q")
 }
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -0.000488281
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Titlebar" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nes0g")
+
+[node name="Exit" type="TextureButton" parent="VBoxContainer/Titlebar"]
+layout_mode = 2
+size_flags_horizontal = 0
+texture_normal = ExtResource("2_h7mvm")
+texture_hover = ExtResource("3_sylyy")
+
+[node name="Title" type="Label" parent="VBoxContainer/Titlebar"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 1
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Editor" type="CodeEdit" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/background_color = Color(0.00392157, 0.0392157, 0.101961, 1)
+
+[node name="Output" type="TextEdit" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/background_color = Color(0.00784314, 0.0588235, 0.14902, 1)
+editable = false

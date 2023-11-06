@@ -6,8 +6,8 @@ public partial class NoteView : Control
 	public int NoteId
 	{ get; set; }
 	NoteGraph parent;
-	TextEdit editor;
-	Label output;
+	CodeEdit editor;
+	TextEdit output;
 	public AnimationPlayer Animation;
 
 	[Signal]
@@ -16,15 +16,20 @@ public partial class NoteView : Control
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		editor = GetNode<TextEdit>("HBoxContainer/TextEdit");
+		editor = GetNode<CodeEdit>("VBoxContainer/HBoxContainer/Editor");
 		parent = GetParent<NoteGraph>();
 		editor.Text = parent.graph.NodeAt(NoteId).Markup;
 		editor.TextChanged += OnTextChanged;
-		output = GetNode<Label>("HBoxContainer/Label");
+		output = GetNode<TextEdit>("VBoxContainer/HBoxContainer/Output");
 		output.Text = editor.Text;
 
 		Animation = GetNode<AnimationPlayer>("AnimationPlayer");
 		Animation.Play("Open");
+
+		var exitButton = GetNode<TextureButton>("VBoxContainer/Titlebar/Exit");
+		exitButton.Pressed += OnClose;
+		var title = GetNode<Label>("VBoxContainer/Titlebar/Title");
+		title.Text = parent.graph.NodeAt(NoteId).Name;
 	}
 
 	private void OnTextChanged()
@@ -38,14 +43,19 @@ public partial class NoteView : Control
 	{
 	}
 
-	public override async void _Input(InputEvent @event)
+	private async void OnClose()
+	{
+		Animation.Play("Close");
+		EmitSignal(SignalName.NoteClosed);
+		await ToSignal(Animation, "animation_finished");
+		QueueFree();
+	}
+
+	public override void _Input(InputEvent @event)
 	{
 		if (Input.IsActionPressed("exit"))
 		{
-			Animation.Play("Close");
-			EmitSignal(SignalName.NoteClosed);
-			await ToSignal(Animation, "animation_finished");
-			QueueFree();
+			OnClose();
 		}
 	}
 }
