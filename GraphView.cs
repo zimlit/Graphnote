@@ -108,6 +108,11 @@ public partial class GraphView : Control
 				DrawArc(node, nodeRadius + 1, 0, 360, 100, selectedColor, 1);
 			}
 			DrawCircle(node, nodeRadius, nodeColor);
+			Font defaultFont = ThemeDB.FallbackFont;
+			int defaultFontSize = ThemeDB.FallbackFontSize;
+			var name = graph.NodeAt(nodesToDraw.IndexOf(node)).Name;
+			var width = defaultFont.GetStringSize(name, HorizontalAlignment.Left, -1, defaultFontSize);
+			DrawString(defaultFont, node + new Vector2(-width.X / 2, 30), name, HorizontalAlignment.Left, -1, defaultFontSize);
 		}
 	}
 
