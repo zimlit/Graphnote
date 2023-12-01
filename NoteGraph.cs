@@ -76,7 +76,7 @@ public partial class NoteGraph : Control
 
 		button.Pressed += OnTextureButtonPressed;
 
-		noteView = GD.Load<PackedScene>("res://noteView.tscn");
+		noteView = GD.Load<PackedScene>("res://NoteView.tscn");
 	}
 
 	private async void OnNodeOpened(int id)

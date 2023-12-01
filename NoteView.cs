@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class NoteView : Control
 {
@@ -35,7 +36,13 @@ public partial class NoteView : Control
 	private void OnTextChanged()
 	{
 		parent.graph.NodeAt(NoteId).Markup = editor.Text;
-		output.Text = editor.Text;
+		output.Text = "";
+		Lexer lexer = new Lexer(editor.Text);
+		List<Token> tokens = lexer.Lex();
+		foreach (var token in tokens)
+		{
+			output.Text += token.ToString() + "\n";
+		}
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
