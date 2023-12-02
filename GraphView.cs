@@ -106,15 +106,27 @@ public partial class GraphView : Control
 					color = selectedColor;
 				else
 					color = Colors.White;
-				DrawLine(
-					nodePos,
-					new Vector2(
+				Vector2 endPos = new Vector2(
 						(float)(radius * Math.Cos(step * edge) + size.X / 2),
 						(float)(radius * Math.Sin(step * edge) + size.Y / 2)
-					),
+					);
+				DrawLine(
+					nodePos,
+					endPos,
 					color,
 					antialiased: true
 				);
+				Vector2[] arrowhead = new Vector2[3];
+				arrowhead[0] = endPos + (10 * (nodePos - endPos).Normalized());
+				if (nodePos.Y == endPos.Y)
+				{
+					arrowhead[1] = arrowhead[0] + new Vector2(10, 5);
+					arrowhead[2] = arrowhead[0] + new Vector2(10, -5);
+				}
+				GD.Print(arrowhead[0], arrowhead[1], arrowhead[2]);
+				GD.Print(endPos);
+
+				DrawColoredPolygon(arrowhead, color);
 			}
 		}
 
@@ -172,36 +184,39 @@ public partial class GraphView : Control
 						(float)(radius * Math.Sin(step * adjacent) + size.Y / 2)
 					);
 
-					if (Math.Abs((endPos - nodePos).Cross(mousePos - nodePos)) > 1000)
-						continue;
-
 					var dotproduct = (endPos - nodePos).Dot(mousePos - nodePos);
-					if (dotproduct < 0)
-						continue;
-
 					var length = (endPos - nodePos).LengthSquared();
-					if (dotproduct > length)
-						continue;
 
-					if (Input.IsKeyPressed(Key.Shift))
+					if (
+						dotproduct >= 0 &&
+						dotproduct <= length &&
+						Math.Abs((endPos - nodePos).Cross(mousePos - nodePos)) <= 1000
+						)
 					{
-						if (selectedEdges.Contains((node.VertexId, adjacent)))
+						if (Input.IsKeyPressed(Key.Shift))
 						{
-							selectedEdges.Remove((node.VertexId, adjacent));
+							if (selectedEdges.Contains((node.VertexId, adjacent)))
+							{
+								selectedEdges.Remove((node.VertexId, adjacent));
+							}
+							else
+							{
+								selectedEdges.Add((node.VertexId, adjacent));
+							}
 						}
 						else
 						{
+							selectedEdges.Clear();
+							selected.Clear();
 							selectedEdges.Add((node.VertexId, adjacent));
 						}
+						QueueRedraw();
+						break;
 					}
-					else
-					{
-						selectedEdges.Clear();
-						selected.Clear();
-						selectedEdges.Add((node.VertexId, adjacent));
-					}
+
+					selected.Clear();
+					selectedEdges.Clear();
 					QueueRedraw();
-					break;
 				}
 			}
 

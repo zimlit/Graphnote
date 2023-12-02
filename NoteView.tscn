@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://dwjegiwkc54m8"]
+[gd_scene load_steps=9 format=3 uid="uid://dwjegiwkc54m8"]
 
 [ext_resource type="Script" path="res://NoteView.cs" id="1_72glg"]
 [ext_resource type="Texture2D" uid="uid://b46vhj55bahpb" path="res://assets/icons/x.svg" id="2_h7mvm"]
 [ext_resource type="Texture2D" uid="uid://4qfiil0vw1fk" path="res://assets/icons/x-hover.svg" id="3_sylyy"]
+[ext_resource type="FontFile" uid="uid://chghxvu51h3r2" path="res://assets/Fonts/monaspace-v1.000/fonts/variable/MonaspaceNeonVarVF[wght,wdth,slnt].ttf" id="4_dyfvh"]
 
 [sub_resource type="Animation" id="Animation_4p76i"]
 resource_name = "Close"
@@ -92,6 +93,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/background_color = Color(0.00392157, 0.0392157, 0.101961, 1)
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_dyfvh")
 gutters_draw_line_numbers = true
 indent_use_spaces = true
 auto_brace_completion_enabled = true

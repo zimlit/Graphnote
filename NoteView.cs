@@ -55,10 +55,17 @@ public partial class NoteView : Control
 		parent.graph.NodeAt(NoteId).Markup = editor.Text;
 		output.Text = "";
 		Lexer lexer = new Lexer(editor.Text);
-		List<Token> tokens = lexer.Lex();
-		foreach (var token in tokens)
+		try
 		{
-			output.Text += token.ToString() + "\n";
+			List<Token> tokens = lexer.Lex();
+			foreach (var token in tokens)
+			{
+				output.Text += token.ToString() + "\n";
+			}
+		}
+		catch (LexErrors errors)
+		{
+			output.Text = errors.ToString();
 		}
 	}
 
