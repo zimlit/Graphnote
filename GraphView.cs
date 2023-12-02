@@ -45,6 +45,13 @@ public partial class GraphView : Control
 	[Signal]
 	public delegate void NodeOpenedEventHandler(int id);
 
+	[Signal]
+	public delegate void NodeDeletedEventHandler(int id);
+
+	[Signal]
+	public delegate void EdgeDeletedEventHandler(int id1, int id2);
+
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -123,8 +130,9 @@ public partial class GraphView : Control
 					arrowhead[1] = arrowhead[0] + new Vector2(10, 5);
 					arrowhead[2] = arrowhead[0] + new Vector2(10, -5);
 				}
-				GD.Print(arrowhead[0], arrowhead[1], arrowhead[2]);
-				GD.Print(endPos);
+				else
+				{
+				}
 
 				DrawColoredPolygon(arrowhead, color);
 			}
@@ -254,11 +262,11 @@ public partial class GraphView : Control
 		{
 			foreach (var node in selected)
 			{
-				graph.RemoveNode(node);
+				EmitSignal(SignalName.NodeDeleted, node);
 			}
 			foreach (var edge in selectedEdges)
 			{
-				graph.RemoveEdge(edge.Item1, edge.Item2);
+				EmitSignal(SignalName.EdgeDeleted, edge.Item1, edge.Item2);
 			}
 			selected.Clear();
 			selectedEdges.Clear();

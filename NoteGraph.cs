@@ -66,6 +66,54 @@ class AddEdgeCommand : Command
 	}
 }
 
+class DeleteNodeCommand : Command
+{
+	readonly Graph graph;
+	readonly int id;
+	readonly string name;
+
+	public DeleteNodeCommand(Graph graph, int id)
+	{
+		this.graph = graph;
+		this.id = id;
+		name = graph.NodeAt(id).Name;
+	}
+
+	public override void Execute()
+	{
+		graph.RemoveNode(id);
+	}
+
+	public override void Undo()
+	{
+		graph.AddNode(name);
+	}
+}
+
+class DeleteEdgeCommand : Command
+{
+	readonly Graph graph;
+	readonly int id1;
+	readonly int id2;
+
+	public DeleteEdgeCommand(Graph graph, int id1, int id2)
+	{
+		this.graph = graph;
+		this.id1 = id1;
+		this.id2 = id2;
+	}
+
+	public override void Execute()
+	{
+		graph.RemoveEdge(id1, id2);
+	}
+
+	public override void Undo()
+	{
+		graph.AddEdge(id1, id2);
+	}
+}
+
 public partial class NoteGraph : Control
 {
 	public Graph graph
@@ -136,6 +184,22 @@ public partial class NoteGraph : Control
 	private void OnEdgeAdded(int id1, int id2)
 	{
 		var command = new AddEdgeCommand(graph, id1, id2);
+		command.Execute();
+		commands.AddCommand(command);
+		graphView.QueueRedraw();
+	}
+
+	private void OnEdgeDeleted(int id1, int id2)
+	{
+		var command = new DeleteEdgeCommand(graph, id1, id2);
+		command.Execute();
+		commands.AddCommand(command);
+		graphView.QueueRedraw();
+	}
+
+	private void OnNodeDeleted(int id)
+	{
+		var command = new DeleteNodeCommand(graph, id);
 		command.Execute();
 		commands.AddCommand(command);
 		graphView.QueueRedraw();
