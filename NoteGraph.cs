@@ -138,6 +138,8 @@ public partial class NoteGraph : Control
 		graphView = GetNode<GraphView>("GraphView");
 		graphView.EdgeAdded += OnEdgeAdded;
 		graphView.NodeOpened += OnNodeOpened;
+		graphView.EdgeDeleted += OnEdgeDeleted;
+		graphView.NodeDeleted += OnNodeDeleted;
 
 		button.Pressed += OnTextureButtonPressed;
 

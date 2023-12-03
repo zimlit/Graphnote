@@ -26,18 +26,13 @@ public partial class GraphView : Control
 	private Graph graph;
 	private Vector2 size;
 
-	// Editor stuff
-	public readonly HashSet<int> selected = new HashSet<int>();
-	public readonly HashSet<(int, int)> selectedEdges = new HashSet<(int, int)>();
-	int dragging = -1;
-
 	readonly Color nodeColor = new Color(0.1f, 0.5f, 0.2f);
 	readonly Color selectedColor = new Color(0.5f, 0.2f, 0.1f);
 
+
 	// drawing stuff
-	double radius = 100;
-	double step;
-	float nodeRadius = 10;
+	const float nodeRadius = 10;
+	private HashSet<Vector2> nodePositions = new HashSet<Vector2>();
 
 	[Signal]
 	public delegate void EdgeAddedEventHandler(int id1, int id2);
@@ -70,207 +65,53 @@ public partial class GraphView : Control
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		if (dragging != -1)
-		{
-			QueueRedraw();
-		}
 	}
 
 	public override void _Draw()
 	{
-		List<Vector2> nodesToDraw = new List<Vector2>();
+		ArrangeNodes();
+		DrawEdges();
+		DrawNodes();
+	}
 
-		step = Math.Tau / graph.VertexCount;
-		while (Math.Tau * radius / 3 < graph.VertexCount * 20)
-			radius *= 2;
-
-		if (dragging != -1)
+	private void DrawNodes()
+	{
+		foreach (var nodePosition in nodePositions)
 		{
-			var mousePos = GetLocalMousePosition();
-			var nodePos = new Vector2(
-				(float)(radius * Math.Cos(step * dragging) + size.X / 2),
-				(float)(radius * Math.Sin(step * dragging) + size.Y / 2)
-			);
-			DrawLine(nodePos, mousePos, Colors.White, antialiased: true);
+			DrawCircle(nodePosition, nodeRadius, nodeColor);
 		}
+	}
 
-		int i = -1;
+
+	private void DrawEdges()
+	{
 		foreach (var node in graph.vertexSet)
 		{
-			i++;
-
-			var nodePos = new Vector2(
-				(float)(radius * Math.Cos(step * i) + size.X / 2),
-				(float)(radius * Math.Sin(step * i) + size.Y / 2)
-			);
-			nodesToDraw.Add(nodePos);
-
-
-			foreach (var edge in node.AdjacencySet)
+			foreach (var adjacent in node.AdjacencySet)
 			{
-				Color color;
-				if (selectedEdges.Contains((node.VertexId, edge)))
-					color = selectedColor;
-				else
-					color = Colors.White;
-				Vector2 endPos = new Vector2(
-						(float)(radius * Math.Cos(step * edge) + size.X / 2),
-						(float)(radius * Math.Sin(step * edge) + size.Y / 2)
-					);
-				DrawLine(
-					nodePos,
-					endPos,
-					color,
-					antialiased: true
-				);
-				Vector2[] arrowhead = new Vector2[3];
-				arrowhead[0] = endPos + (10 * (nodePos - endPos).Normalized());
-				if (nodePos.Y == endPos.Y)
-				{
-					arrowhead[1] = arrowhead[0] + new Vector2(10, 5);
-					arrowhead[2] = arrowhead[0] + new Vector2(10, -5);
-				}
-				else
-				{
-				}
-
-				DrawColoredPolygon(arrowhead, color);
+				DrawLine(nodePositions.ElementAt(node.VertexId), nodePositions.ElementAt(adjacent), nodeColor);
 			}
 		}
+	}
 
-		foreach (var node in nodesToDraw)
+
+	private void ArrangeNodes()
+	{
+		nodePositions.Clear();
+		int numNodes = graph.vertexSet.Count;
+		float angle = 0;
+		float angleIncrement = 2 * Mathf.Pi / numNodes;
+		float radius = Mathf.Min(size.X, size.Y) / 2 - 50;
+		Vector2 center = size / 2;
+		DrawCircle(center, radius, Colors.White);
+		foreach (var node in graph.vertexSet)
 		{
-			if (selected.Contains(nodesToDraw.IndexOf(node)))
-			{
-				DrawArc(node, nodeRadius + 1, 0, 360, 100, selectedColor, 1);
-			}
-			DrawCircle(node, nodeRadius, nodeColor);
-			Font defaultFont = ThemeDB.FallbackFont;
-			int defaultFontSize = ThemeDB.FallbackFontSize;
-			var name = graph.NodeAt(nodesToDraw.IndexOf(node)).Name;
-			var width = defaultFont.GetStringSize(name, HorizontalAlignment.Left, -1, defaultFontSize);
-			DrawString(defaultFont, node + new Vector2(-width.X / 2, 30), name, HorizontalAlignment.Left, -1, defaultFontSize);
+			nodePositions.Add(new Vector2(radius * Mathf.Cos(angle), radius * Mathf.Sin(angle)) + center);
+			angle += angleIncrement;
 		}
 	}
 
 	public override void _Input(InputEvent @event)
 	{
-		if (Input.IsActionPressed("click"))
-		{
-			var mousePos = GetLocalMousePosition();
-			foreach (var node in graph.vertexSet)
-			{
-				var nodePos = new Vector2(
-					(float)(radius * Math.Cos(step * node.VertexId) + size.X / 2),
-					(float)(radius * Math.Sin(step * node.VertexId) + size.Y / 2)
-				);
-				if (nodePos.DistanceTo(mousePos) < nodeRadius)
-				{
-					if (dragging == -1)
-						dragging = node.VertexId;
-					if (Input.IsKeyPressed(Key.Shift))
-						if (selected.Contains(node.VertexId))
-							selected.Remove(node.VertexId);
-						else
-							selected.Add(node.VertexId);
-					else
-					{
-						selected.Clear();
-						selectedEdges.Clear();
-						selected.Add(node.VertexId);
-					}
-					QueueRedraw();
-					break;
-				}
-
-				foreach (var adjacent in node.AdjacencySet)
-				{
-					if (dragging != -1)
-						break;
-					var endPos = new Vector2(
-						(float)(radius * Math.Cos(step * adjacent) + size.X / 2),
-						(float)(radius * Math.Sin(step * adjacent) + size.Y / 2)
-					);
-
-					var dotproduct = (endPos - nodePos).Dot(mousePos - nodePos);
-					var length = (endPos - nodePos).LengthSquared();
-
-					if (
-						dotproduct >= 0 &&
-						dotproduct <= length &&
-						Math.Abs((endPos - nodePos).Cross(mousePos - nodePos)) <= 1000
-						)
-					{
-						if (Input.IsKeyPressed(Key.Shift))
-						{
-							if (selectedEdges.Contains((node.VertexId, adjacent)))
-							{
-								selectedEdges.Remove((node.VertexId, adjacent));
-							}
-							else
-							{
-								selectedEdges.Add((node.VertexId, adjacent));
-							}
-						}
-						else
-						{
-							selectedEdges.Clear();
-							selected.Clear();
-							selectedEdges.Add((node.VertexId, adjacent));
-						}
-						QueueRedraw();
-						break;
-					}
-
-					selected.Clear();
-					selectedEdges.Clear();
-					QueueRedraw();
-				}
-			}
-
-			if (@event is InputEventMouseButton buttonEvent && buttonEvent.DoubleClick)
-			{
-				try
-				{
-					EmitSignal(SignalName.NodeOpened, selected.Last());
-				}
-				catch (Exception) { }
-			}
-		}
-		if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
-		{
-			var mousePos = GetLocalMousePosition();
-
-			foreach (var node in graph.vertexSet)
-			{
-				if (node.VertexId == dragging)
-					continue;
-				var nodePos = new Vector2(
-					(float)(radius * Math.Cos(step * node.VertexId) + size.X / 2),
-					(float)(radius * Math.Sin(step * node.VertexId) + size.Y / 2)
-				);
-				if (nodePos.DistanceTo(mousePos) < nodeRadius)
-				{
-					EmitSignal(SignalName.EdgeAdded, dragging, node.VertexId);
-				}
-			}
-			QueueRedraw();
-			dragging = -1;
-
-		}
-		if (Input.IsActionJustPressed("delete"))
-		{
-			foreach (var node in selected)
-			{
-				EmitSignal(SignalName.NodeDeleted, node);
-			}
-			foreach (var edge in selectedEdges)
-			{
-				EmitSignal(SignalName.EdgeDeleted, edge.Item1, edge.Item2);
-			}
-			selected.Clear();
-			selectedEdges.Clear();
-			QueueRedraw();
-		}
 	}
 }
